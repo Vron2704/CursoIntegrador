@@ -78,6 +78,11 @@
                             <label>Stock</label>
                             <input type="number" name="stock" class="form-control mb-2" required>
                         </div>
+                        <div class="form-group">
+                            <label for="id_proveedor">Proveedor:</label>
+                            <!-- Lo ideal sería un <select> poblado desde la BD, pero un input es funcional para empezar -->
+                            <input type="number" name="id_proveedor" class="form-control" required>
+                        </div>
                     </div>
 
                     <label>Imagen del Producto</label>

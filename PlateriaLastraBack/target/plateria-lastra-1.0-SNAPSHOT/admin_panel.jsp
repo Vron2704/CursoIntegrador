@@ -21,7 +21,7 @@
                 <li class="nav-item"><a class="nav-link" href="ArticuloController?accion=listar">Artículos</a></li>
             </ul>
             <div class="d-flex align-items-center text-white">
-                <span class="me-3"><i class="fa fa-user"></i> ${usuario.usuario} (${usuario.rol})</span>
+                <span class="me-3"><i class="fa fa-user"></i> ${usuario.usuario} (${usuario.cargo})</span>
                 <a href="LoginController?accion=salir" class="btn btn-danger btn-sm">Salir</a>
             </div>
         </div>

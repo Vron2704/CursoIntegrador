@@ -1,7 +1,7 @@
 package com.platerialastra.dao;
 
 import com.platerialastra.config.ConexionDB;
-import com.platerialastra.modelo.Articulo;
+import com.platerialastra.models.Articulo;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,27 +13,33 @@ public class ArticuloDAO {
 
     public List<Articulo> listar() {
         List<Articulo> lista = new ArrayList<>();
-        String sql = "SELECT * FROM articulos ORDER BY id_articulo DESC";
-        try {
-            con = ConexionDB.conectar();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
+        // Añadir 'public.' previene problemas de lectura en el esquema de Supabase
+        String sql = "SELECT * FROM public.articulos ORDER BY id_articulo DESC";
+
+        ConexionDB conectar = new ConexionDB();
+        try (Connection con = ConexionDB.conectar();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-                Articulo a = new Articulo();
-                a.setIdArticulo(rs.getInt("id_articulo"));
-                a.setNombre(rs.getString("nombre"));
-                a.setDescripcion(rs.getString("descripcion"));
-                a.setPrecio(rs.getDouble("precio"));
-                a.setStock(rs.getInt("stock"));
-                a.setImagen(rs.getString("imagen"));
-                lista.add(a);
+                Articulo art = new Articulo();
+                art.setIdArticulo(rs.getInt("id_articulo"));
+                art.setNombre(rs.getString("nombre"));
+                art.setDescripcion(rs.getString("descripcion"));
+                art.setPrecio(rs.getDouble("precio"));
+                art.setStock(rs.getInt("stock"));
+                art.setImagen(rs.getString("img_url"));
+                lista.add(art);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            System.err.println("Error al listar artículos: " + e.getMessage());
+            e.printStackTrace();
+        }
         return lista;
     }
 
     public boolean agregar(Articulo a) {
-        String sql = "INSERT INTO articulos (nombre, descripcion, precio, stock, imagen) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO articulos (nombre, descripcion, precio, stock, img_url) VALUES (?, ?, ?, ?, ?)";
         try {
             con = ConexionDB.conectar();
             ps = con.prepareStatement(sql);

@@ -5,39 +5,36 @@ import com.platerialastra.models.Usuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UsuarioDAO {
-    public Usuario validar(String email, String password) {
-        Usuario user = null;
-        String sql = "SELECT * FROM usuarios WHERE correo = ? AND password = ?";
-        try (Connection con = ConexionDB.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, email);
+
+    public Usuario validarLogin(String correo, String password) {
+        Usuario usuario = null;
+        // Consulta adaptada a tu esquema: verifica el correo, el password y si la cuenta está activa
+        String sql = "SELECT id_empleado, correo, usuario, nombres, cargo, activo " +
+                "FROM public.usuarios WHERE correo = ? AND password = ? AND activo = true";
+
+        try (Connection conn = ConexionDB.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, correo);
             ps.setString(2, password);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                user = new Usuario();
-                user.setId(rs.getInt("id"));
-                user.setUsuario(rs.getString("usuario"));
-                user.setEmail(rs.getString("email"));
-                user.setRol(rs.getString("cargo"));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    usuario = new Usuario();
+                    usuario.setIdEmpleado(rs.getInt("id_empleado"));
+                    usuario.setCorreo(rs.getString("correo"));
+                    usuario.setUsuario(rs.getString("usuario"));
+                    usuario.setNombres(rs.getString("nombres"));
+                    usuario.setCargo(rs.getString("cargo"));
+                    usuario.setActivo(rs.getBoolean("activo"));
+                }
             }
-        } catch (Exception e) { e.printStackTrace(); }
-        return user;
-    }
-    public boolean registrar(Usuario u) {
-        String sql = "INSERT INTO usuarios (usuario, correo, password, cargo) VALUES (?, ?, ?, ?)";
-        try (Connection con = ConexionDB.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, u.getUsuario());
-            ps.setString(2, u.getEmail());
-            ps.setString(3, u.getPassword());
-            ps.setString(4, u.getCargo());
-            ps.executeUpdate();
-            return true;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return usuario;
     }
 }
